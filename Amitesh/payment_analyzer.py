@@ -12,7 +12,7 @@ class AnomalyHypothesis:
     confidence: float
 
 class PaymentAnalyzer:
-    def __init__(self, window_size: int = 50):
+    def __init__(self, window_size: int = 20):
         self.window_size = window_size
         self.history: deque[PaymentSignal] = deque(maxlen=window_size)
         
@@ -42,7 +42,8 @@ class PaymentAnalyzer:
             top_merch, merch_count = merch_counts.most_common(1)[0]
             top_curr, curr_count = curr_counts.most_common(1)[0]
             
-            if merch_count / len(failures) > 0.8:
+            # Lowered threshold to 40% (0.4)
+            if merch_count / len(failures) > 0.4:
                 return AnomalyHypothesis(
                     type="FAILURE_RATE",
                     severity="CRITICAL",
@@ -50,7 +51,7 @@ class PaymentAnalyzer:
                     root_cause_guess=f"Merchant {top_merch} is experiencing an outage.",
                     confidence=0.9
                 )
-            elif curr_count / len(failures) > 0.8:
+            elif curr_count / len(failures) > 0.4:
                 return AnomalyHypothesis(
                     type="FAILURE_RATE",
                     severity="CRITICAL",
@@ -77,4 +78,4 @@ class PaymentAnalyzer:
                 confidence=0.7
             )
             
-        return None
+        return None  
